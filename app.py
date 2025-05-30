@@ -1,3 +1,23 @@
+# Add this at the very top of your main application file (app.py)
+import sys
+import sqlite3
+
+# Check SQLite version and use pysqlite3 if needed
+sqlite_version = sqlite3.sqlite_version_info
+if sqlite_version < (3, 35, 0):
+    try:
+        # Replace sqlite3 with pysqlite3
+        import pysqlite3 as sqlite3
+        sys.modules['sqlite3'] = sqlite3
+        print(f"Using pysqlite3-binary (SQLite {sqlite3.sqlite_version})")
+    except ImportError:
+        print("pysqlite3-binary not installed. Install with: pip install pysqlite3-binary")
+        raise
+
+# Now import ChromaDB and other dependencies
+import chromadb
+
+
 import os
 import re
 import unicodedata
