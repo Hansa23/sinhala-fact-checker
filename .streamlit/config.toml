@@ -1,5 +1,5 @@
 [global]
-pythonVersion = "3.10"
+pythonVersion = "3.11"
 
 
 [theme]
@@ -14,3 +14,6 @@ port = 8501
 
 [browser]
 gatherUsageStats = false
+
+[server]
+fileWatcherType = "none"
