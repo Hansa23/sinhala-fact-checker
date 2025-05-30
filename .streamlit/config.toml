@@ -1,6 +1,5 @@
 [global]
-pythonVersion = "3.11"
-
+pythonVersion = "3.11.3"
 
 [theme]
 primaryColor = "#FF6B6B"
@@ -11,9 +10,7 @@ textColor = "#262730"
 [server]
 headless = true
 port = 8501
+fileWatcherType = "none"   # disable the broken Torch watcher
 
 [browser]
 gatherUsageStats = false
-
-[server]
-fileWatcherType = "none"
