@@ -12,6 +12,16 @@ import google.generativeai as genai
 from tavily import TavilyClient
 import streamlit as st
 
+import sys
+
+# Force use of modern SQLite via pysqlite3
+try:
+    import pysqlite3
+    sys.modules["sqlite3"] = pysqlite3
+except ImportError:
+    pass
+
+
 # Utility Functions
 def initialize_gemini(model_name):
     gemini_api_key = os.getenv("GEMINI_API_KEY")
