@@ -1,3 +1,7 @@
+[global]
+pythonVersion = "3.10"
+
+
 [theme]
 primaryColor = "#FF6B6B"
 backgroundColor = "#FFFFFF"
