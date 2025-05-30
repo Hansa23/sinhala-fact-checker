@@ -328,30 +328,95 @@ class OrchestrationAgent:
         verdict = self.verdict_agent.extract_verdict(analysis)
         return verdict, analysis, method_used
 
-# Initialize function (cached to avoid reloading)
 @st.cache_resource
 def initialize_app():
     try:
-        # CSV paths - adjust these to match your file structure
-        csv_paths = {
-            "politics": "data/politics_data.csv",
-            "economics": "data/economics_data.csv",
-            "health": "data/health_data.csv"
+        # Debug: Show current working directory
+        st.write("🔍 Debug Info:")
+        st.write(f"Current working directory: {os.getcwd()}")
+        
+        # List files in current directory
+        if os.path.exists('.'):
+            files_in_cwd = os.listdir('.')
+            st.write(f"Files in current directory: {files_in_cwd}")
+        
+        # Check if data directory exists
+        if os.path.exists('data'):
+            files_in_data = os.listdir('data')
+            st.write(f"Files in data directory: {files_in_data}")
+        else:
+            st.warning("⚠️ 'data' directory not found!")
+            return None
+        
+        # CSV paths - check what files actually exist in data folder
+        available_files = os.listdir('data') if os.path.exists('data') else []
+        csv_files_found = [f for f in available_files if f.endswith('.csv')]
+        st.write(f"CSV files found in data folder: {csv_files_found}")
+        
+        # Build csv_paths based on what actually exists
+        csv_paths = {}
+        
+        # Map the files you have to the expected domains
+        file_domain_mapping = {
+            'economics_data.csv': 'economics',
+            'politics_data.csv': 'politics', 
+            'health_data.csv': 'health'
         }
         
-        domains = ["politics", "economics", "health"]
+        for filename, domain in file_domain_mapping.items():
+            full_path = f"data/{filename}"
+            if os.path.exists(full_path):
+                csv_paths[domain] = full_path
+                st.success(f"✅ Found {domain} data: {filename}")
+            else:
+                st.warning(f"⚠️ Missing {domain} data: {filename}")
+        
+        st.write(f"Final csv_paths to use: {csv_paths}")
+        
+        # Check which files actually exist
+        existing_csv_paths = {}
+        missing_files = []
+        
+        for domain, path in csv_paths.items():
+            st.write(f"Checking {domain}: {path}")
+            if os.path.exists(path):
+                existing_csv_paths[domain] = path
+                st.success(f"✅ Found: {path}")
+            else:
+                missing_files.append(f"{domain}: {path}")
+                st.error(f"❌ Missing: {path}")
+        
+        # If no files exist, show error and stop
+        if not existing_csv_paths:
+            st.error("🚫 No CSV files found! Please:")
+            st.write("1. Create a 'data' folder in your project directory")
+            st.write("2. Add your CSV files:")
+            for missing in missing_files:
+                st.write(f"   - {missing}")
+            st.write("3. Or update the file paths in the code to match your file locations")
+            return None
+        
+        # Show which files will be used
+        st.info(f"📁 Using {len(existing_csv_paths)} CSV file(s): {list(existing_csv_paths.keys())}")
+        
+        domains = list(existing_csv_paths.keys())
         vector_stores = {}
         
+        # Create vector stores only for existing files
         for domain in domains:
+            csv_path = existing_csv_paths[domain]
             persist_directory = f"chroma_db_{domain}"
-            if os.path.exists(csv_paths[domain]):
-                vector_store, doc_count = setup_vector_store(csv_paths[domain], persist_directory)
+            
+            try:
+                vector_store, doc_count = setup_vector_store(csv_path, persist_directory)
                 vector_stores[domain] = vector_store
-            else:
-                st.warning(f"CSV file not found for {domain}: {csv_paths[domain]}")
+                st.success(f"✅ Loaded {doc_count} documents for {domain}")
+            except Exception as e:
+                st.error(f"❌ Error loading {domain} data: {str(e)}")
+                continue
         
         if not vector_stores:
-            st.error("No CSV files found. Please ensure your data files are in the correct location.")
+            st.error("🚫 Failed to load any vector stores. Check your CSV files and try again.")
             return None
         
         # Initialize models
@@ -359,17 +424,25 @@ def initialize_app():
         decision_model = initialize_gemini("models/gemma-3-27b-it")
         
         # Initialize agents
-        retrieval_agents = {domain: DataRetrievalAgent(domain, vector_stores[domain]) for domain in vector_stores.keys()}
+        retrieval_agents = {domain: DataRetrievalAgent(domain, vector_stores[domain]) 
+                          for domain in vector_stores.keys()}
         domain_classifier = DomainClassificationAgent(general_model)
         fact_analyzer = FactAnalysisAgent(general_model)
         verdict_agent = VerdictAgent()
         search_clients = initialize_search_clients()
         decision_agent = DecisionAgent(decision_model)
-        orchestrator = OrchestrationAgent(domain_classifier, retrieval_agents, fact_analyzer, verdict_agent, search_clients, decision_agent)
         
+        orchestrator = OrchestrationAgent(
+            domain_classifier, retrieval_agents, fact_analyzer, 
+            verdict_agent, search_clients, decision_agent
+        )
+        
+        st.success(f"🎉 Application initialized successfully with {len(vector_stores)} domain(s)!")
         return orchestrator
+        
     except Exception as e:
-        st.error(f"Error initializing application: {str(e)}")
+        st.error(f"💥 Error initializing application: {str(e)}")
+        st.write("Full error details:", str(e))
         return None
 
 # Main Streamlit UI
