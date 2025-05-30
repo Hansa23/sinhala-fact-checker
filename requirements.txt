@@ -2,7 +2,8 @@
 numpy<2.0.0
 
 # Add PySQLite fallback for Chroma (if you cannot upgrade system sqlite)
-pysqlite3-binary>=0.5.7
+# pinned to the latest available version supported by your environment
+pysqlite3-binary<=0.5.4
 
 # Deep learning / embedding libraries
 torch>=2.7.0,<3.0.0
