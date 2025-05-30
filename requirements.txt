@@ -1,13 +1,25 @@
-torch
+## Core dependencies
 numpy<2.0.0
+
+# Add PySQLite fallback for Chroma (if you cannot upgrade system sqlite)
+pysqlite3-binary>=0.5.7
+
+# Deep learning / embedding libraries
+torch>=2.7.0,<3.0.0
 sentence-transformers
+transformers
+
+# LangChain ecosystem
 langchain
 langchain-community
 langchain-chroma
+langchain_huggingface
 chromadb
-streamlit
+
+# Web/front-end
 tavily-python
+streamlit>=1.45.1,<2.0.0
+
+# Google Generative AI and utilities
 google-generativeai
 huggingface_hub
-langchain_huggingface
-transformers
