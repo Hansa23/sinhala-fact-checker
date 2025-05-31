@@ -1130,14 +1130,14 @@ def main():
                 st.exception(e)
                 
 # Add this at the end of your script or main() function
-st.markdown(
-    """
-    <div style="text-align: center; font-size: 12px; color: #888; margin-top: 20px;">
-        Created by Devin de Silva | Email: as2020323@sci.sjp.ac.lk | As a part of final year research project
-    </div>
-    """,
-    unsafe_allow_html=True
-)
+        st.markdown(
+            """
+            <div style="text-align: center; font-size: 12px; color: #888; margin-top: 20px;">
+                Created by Devin de Silva | Email: as2020323@sci.sjp.ac.lk | As a part of final year research project
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
 
 if __name__ == "__main__":
