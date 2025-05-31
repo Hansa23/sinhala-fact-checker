@@ -520,6 +520,15 @@ def main():
     st.title("සිංහල සත්‍ය සෙවුම්කරු")
     st.markdown("**Sinhala Fact Verification System**")
     st.write("මෙම පද්ධතිය ඔබ ලබා දෙන සිංහල ප්‍රකාශයන්හි සත්‍යතාවය පරීක්ෂා කරයි.")
+    st.markdown(
+            """
+            <div style="text-align: center; font-size: 12px; color: #888; margin-top: 20px;">
+                Created by Devin de Silva | Email: as2020323@sci.sjp.ac.lk | As a part of final year research project
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
 
     orchestrator = initialize_app()
     if orchestrator is None:
@@ -577,15 +586,7 @@ def main():
                 st.exception(e)
                 
 # Add this at the end of your script or main() function
-    st.markdown(
-            """
-            <div style="text-align: center; font-size: 12px; color: #888; margin-top: 20px;">
-                Created by Devin de Silva | Email: as2020323@sci.sjp.ac.lk | As a part of final year research project
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-
+    
 
 if __name__ == "__main__":
     main()
