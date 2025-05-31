@@ -1,29 +1,18 @@
-## Core dependencies
 numpy==1.26.4
 pysqlite3-binary==0.5.4
-
-# Deep learning / embedding libraries
 torch==2.0.1
-sentence-transformers==2.2.2
-transformers==4.30.2
-
-# LangChain ecosystem
+sentence-transformers
+transformers
 langchain==0.3.25
 langchain-community==0.3.21
 langchain-chroma==0.2.2
-langchain_huggingface==0.2.0
+langchain-huggingface
 chromadb==0.6.3
-
-# Web/front-end
 tavily-python
 streamlit==1.45.1
-
-# Google Generative AI and utilities
 google-generativeai
 huggingface_hub
-
-# Additional dependencies
-tokenizers==0.13.3
+tokenizers
 protobuf==5.29.5
 scikit-learn==1.6.1
 pandas==2.2.3
