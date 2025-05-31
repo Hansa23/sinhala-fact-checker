@@ -1027,9 +1027,11 @@ def initialize_app():
                 vector_store = Chroma(persist_directory=persist_directory, embedding_function=embedding_model)
                 doc_count = vector_store._collection.count()
                 vector_stores[domain] = vector_store
-                st.success(f"Loaded {doc_count} documents for '{domain}'")
+                # st.success(f"Loaded {doc_count} documents for '{domain}'")
+                print(f"Loaded {doc_count} documents for '{domain}'")
             except Exception as e:
-                st.error(f"Error loading vector store for '{domain}': {e}")
+                # st.error(f"Error loading vector store for '{domain}': {e}")
+                print(f"Error loading vector store for '{domain}': {e}")
                 raise
         if not vector_stores:
             st.error("No vector stores loaded.")
