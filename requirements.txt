@@ -1,7 +1,7 @@
 numpy==1.26.4
 pysqlite3-binary==0.5.4
 torch==2.1.2
-transformers==4.40.2
+transformers==4.39.3  # Supports tokenizers 0.20
 sentence-transformers==2.7.0
 langchain==0.3.25
 langchain-community==0.3.21
@@ -12,7 +12,7 @@ tavily-python==0.7.3
 streamlit==1.45.1
 google-generativeai==0.8.5
 huggingface-hub==0.22.2
-tokenizers==0.20.0
+tokenizers==0.20.0  # Exact version that works with both
 protobuf==5.29.5
 scikit-learn==1.6.1
 pandas==2.2.3
