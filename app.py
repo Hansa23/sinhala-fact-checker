@@ -669,7 +669,8 @@ def download_and_extract_zip(url, extract_to):
         with zipfile.ZipFile(zip_path, "r") as zip_ref:
             zip_ref.extractall(extract_to)
         os.remove(zip_path)
-        st.write(f"Downloaded and extracted {url} to {extract_to}")
+        # st.write(f"Downloaded and extracted {url} to {extract_to}")
+        print(f"Downloaded and extracted {url} to {extract_to}")
     except Exception as e:
         st.error(f"Failed to download/extract {url}: {str(e)}")
         raise
