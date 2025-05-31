@@ -1018,7 +1018,8 @@ def initialize_app():
         for domain in domains:
             persist_directory = os.path.join(current_dir, f"chroma_db_{domain}")
             if not os.path.isdir(persist_directory):
-                st.info(f"Downloading Chroma DB for {domain}...")
+                # st.info(f"Downloading Chroma DB for {domain}...")
+                print(f"Downloading Chroma DB for {domain}...")
                 url = db_urls[domain]
                 download_and_extract_zip(url, current_dir)
                 if not os.path.isdir(persist_directory):
