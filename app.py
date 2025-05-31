@@ -1128,10 +1128,7 @@ def main():
             except Exception as e:
                 st.error(f"Error during fact checking: {str(e)}")
                 st.exception(e)
-
-
-if __name__ == "__main__":
-    main()
+                
 # Add this at the end of your script or main() function
 st.markdown(
     """
@@ -1141,3 +1138,7 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
+
+
+if __name__ == "__main__":
+    main()
