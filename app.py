@@ -2,6 +2,21 @@
 import sys
 import sqlite3
 
+import os
+import sys
+
+# Debugging output
+print(f"Python version: {sys.version}")
+print(f"Current directory: {os.getcwd()}")
+print(f"Files in data dir: {os.listdir('data')}")
+
+# Workaround for pipeline import
+try:
+    from transformers import pipeline
+except ImportError:
+    from transformers.pipelines import pipeline
+    print("Used fallback pipeline import")
+
 # Check SQLite version and use pysqlite3 if needed
 sqlite_version = sqlite3.sqlite_version_info
 if sqlite_version < (3, 35, 0):
@@ -331,32 +346,29 @@ class OrchestrationAgent:
 @st.cache_resource
 def initialize_app():
     try:
-        # Debug: Show current working directory
+        # Get current script directory for absolute paths
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        data_dir = os.path.join(current_dir, 'data')
+        
         st.write("🔍 Debug Info:")
-        st.write(f"Current working directory: {os.getcwd()}")
+        st.write(f"Current script directory: {current_dir}")
+        st.write(f"Data directory: {data_dir}")
         
-        # List files in current directory
-        if os.path.exists('.'):
-            files_in_cwd = os.listdir('.')
-            st.write(f"Files in current directory: {files_in_cwd}")
-        
-        # Check if data directory exists
-        if os.path.exists('data'):
-            files_in_data = os.listdir('data')
-            st.write(f"Files in data directory: {files_in_data}")
-        else:
-            st.warning("⚠️ 'data' directory not found!")
+        # Verify data directory exists
+        if not os.path.exists(data_dir):
+            st.error(f"❌ 'data' directory not found at: {data_dir}")
             return None
+            
+        # List files in data directory
+        files_in_data = os.listdir(data_dir)
+        st.write(f"Files in data directory: {files_in_data}")
         
-        # CSV paths - check what files actually exist in data folder
-        available_files = os.listdir('data') if os.path.exists('data') else []
-        csv_files_found = [f for f in available_files if f.endswith('.csv')]
-        st.write(f"CSV files found in data folder: {csv_files_found}")
+        # Find CSV files with absolute paths
+        csv_files_found = [f for f in files_in_data if f.endswith('.csv')]
+        st.write(f"CSV files found: {csv_files_found}")
         
-        # Build csv_paths based on what actually exists
+        # Build csv_paths with absolute paths
         csv_paths = {}
-        
-        # Map the files you have to the expected domains
         file_domain_mapping = {
             'economics_data.csv': 'economics',
             'politics_data.csv': 'politics', 
@@ -364,60 +376,42 @@ def initialize_app():
         }
         
         for filename, domain in file_domain_mapping.items():
-            full_path = f"data/{filename}"
+            full_path = os.path.join(data_dir, filename)
             if os.path.exists(full_path):
                 csv_paths[domain] = full_path
-                st.success(f"✅ Found {domain} data: {filename}")
+                st.success(f"✅ Found {domain} data: {full_path}")
             else:
                 st.warning(f"⚠️ Missing {domain} data: {filename}")
         
-        st.write(f"Final csv_paths to use: {csv_paths}")
-        
-        # Check which files actually exist
-        existing_csv_paths = {}
-        missing_files = []
-        
-        for domain, path in csv_paths.items():
-            st.write(f"Checking {domain}: {path}")
-            if os.path.exists(path):
-                existing_csv_paths[domain] = path
-                st.success(f"✅ Found: {path}")
-            else:
-                missing_files.append(f"{domain}: {path}")
-                st.error(f"❌ Missing: {path}")
-        
-        # If no files exist, show error and stop
-        if not existing_csv_paths:
-            st.error("🚫 No CSV files found! Please:")
-            st.write("1. Create a 'data' folder in your project directory")
-            st.write("2. Add your CSV files:")
-            for missing in missing_files:
-                st.write(f"   - {missing}")
-            st.write("3. Or update the file paths in the code to match your file locations")
+        # Verify we found at least one CSV
+        if not csv_paths:
+            st.error("🚫 No CSV files found! Please check your data directory")
             return None
-        
-        # Show which files will be used
-        st.info(f"📁 Using {len(existing_csv_paths)} CSV file(s): {list(existing_csv_paths.keys())}")
-        
-        domains = list(existing_csv_paths.keys())
-        vector_stores = {}
-        
-        # Create vector stores only for existing files
-        for domain in domains:
-            csv_path = existing_csv_paths[domain]
-            persist_directory = f"chroma_db_{domain}"
             
+        st.info(f"📁 Using {len(csv_paths)} CSV file(s): {list(csv_paths.keys())}")
+        
+        # Load vector stores
+        vector_stores = {}
+        for domain, csv_path in csv_paths.items():
             try:
+                persist_directory = f"chroma_db_{domain}"
                 vector_store, doc_count = setup_vector_store(csv_path, persist_directory)
                 vector_stores[domain] = vector_store
                 st.success(f"✅ Loaded {doc_count} documents for {domain}")
             except Exception as e:
                 st.error(f"❌ Error loading {domain} data: {str(e)}")
-                continue
+                st.exception(e)  # Show full traceback
         
         if not vector_stores:
             st.error("🚫 Failed to load any vector stores. Check your CSV files and try again.")
             return None
+            
+        return vector_stores
+        
+    except Exception as e:
+        st.error(f"🔥 Critical error in app initialization: {str(e)}")
+        st.exception(e)
+        return None
         
         # Initialize models
         general_model = initialize_gemini("models/gemma-3-27b-it")
