@@ -13,3 +13,5 @@ google-generativeai
 huggingface_hub
 langchain-huggingface
 transformers
+# Additional packages
+requests
